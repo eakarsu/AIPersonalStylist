@@ -6,6 +6,7 @@ async function seed() {
 
   // Create tables
   await pool.query(`
+    DROP TABLE IF EXISTS ai_history CASCADE;
     DROP TABLE IF EXISTS fashion_feed CASCADE;
     DROP TABLE IF EXISTS style_quiz CASCADE;
     DROP TABLE IF EXISTS mix_match CASCADE;
@@ -28,6 +29,26 @@ async function seed() {
       email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
       name VARCHAR(255) NOT NULL,
+      reset_token VARCHAR(255),
+      reset_token_expiry TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE ai_history (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      feature VARCHAR(100),
+      result TEXT,
+      metadata JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE ai_results (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      endpoint VARCHAR(100),
+      result TEXT,
+      metadata JSONB,
       created_at TIMESTAMP DEFAULT NOW()
     );
 
@@ -41,6 +62,12 @@ async function seed() {
       size VARCHAR(50),
       season VARCHAR(50),
       image_url TEXT,
+      photo_path TEXT,
+      purchase_price DECIMAL(10,2) DEFAULT 0,
+      times_worn INTEGER DEFAULT 0,
+      style VARCHAR(100),
+      occasions TEXT,
+      care_instructions TEXT,
       notes TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     );

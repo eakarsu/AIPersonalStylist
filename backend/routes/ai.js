@@ -1,6 +1,7 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
 const pool = require('../db');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
 const FEATURE_PROMPTS = {
@@ -84,7 +85,54 @@ const TABLE_MAP = {
   'fashion-feed': 'fashion_feed'
 };
 
-router.post('/:feature', authMiddleware, async (req, res) => {
+// Rate limiter: 20 requests per hour per user or IP
+const aiRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  keyGenerator: (req) => (req.userId ? `user_${req.userId}` : req.ip),
+  message: { error: 'Too many AI requests. Please wait before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// GET /api/ai/history — paginated ai_history for logged-in user, optionally filtered by feature
+router.get('/history', authMiddleware, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const feature = req.query.feature || null;
+
+    let countQuery = 'SELECT COUNT(*) FROM ai_history WHERE user_id = $1';
+    let dataQuery = 'SELECT id, feature, result, created_at FROM ai_history WHERE user_id = $1';
+    const params = [req.userId];
+
+    if (feature) {
+      countQuery += ' AND feature = $2';
+      dataQuery += ' AND feature = $2';
+      params.push(feature);
+      dataQuery += ` ORDER BY created_at DESC LIMIT $3 OFFSET $4`;
+      params.push(limit, offset);
+    } else {
+      dataQuery += ` ORDER BY created_at DESC LIMIT $2 OFFSET $3`;
+      params.push(limit, offset);
+    }
+
+    const countResult = await pool.query(countQuery, feature ? [req.userId, feature] : [req.userId]);
+    const total = parseInt(countResult.rows[0].count);
+    const result = await pool.query(dataQuery, params);
+
+    res.json({
+      data: result.rows,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/ai/:feature
+router.post('/:feature', authMiddleware, aiRateLimiter, async (req, res) => {
   const { feature } = req.params;
   const { customPrompt } = req.body;
 
@@ -111,12 +159,12 @@ router.post('/:feature', authMiddleware, async (req, res) => {
         'X-Title': 'AI Personal Stylist'
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
+        model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022',
         messages: [
           { role: 'system', content: featureConfig.system },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 1500,
+        max_tokens: 4000,
         temperature: 0.7
       })
     });
@@ -128,6 +176,16 @@ router.post('/:feature', authMiddleware, async (req, res) => {
     }
 
     const aiContent = data.choices?.[0]?.message?.content || 'No response generated';
+
+    // Persist AI result
+    try {
+      await pool.query(
+        'INSERT INTO ai_history (user_id, feature, result) VALUES ($1, $2, $3)',
+        [req.userId, feature, aiContent]
+      );
+    } catch (saveErr) {
+      console.error('Failed to save AI history:', saveErr.message);
+    }
 
     res.json({
       feature,
