@@ -19,6 +19,14 @@ export default function Navbar() {
             Dashboard
           </button>
         )}
+        <button
+          className="btn btn-ghost"
+          data-testid="nav-stylist-views"
+          onClick={() => navigate('/custom-views')}
+        >
+          <span className="material-icons-outlined">dashboard_customize</span>
+          Stylist Views
+        </button>
         <div className="user-badge">
           <span className="material-icons-outlined">account_circle</span>
           <span>{user?.name}</span>

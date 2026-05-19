@@ -88,6 +88,12 @@ app.use('/api/gap-no-audit-logging-grep-0', require('./routes/gapFeat_no_audit_l
 app.use('/api/gap-no-webhooks', require('./routes/gapFeat_no_webhooks'));
 app.use('/api/gap-only-9-frontend-pages-despite-20-routes', require('./routes/gapFeat_only_9_frontend_pages_despite_20_routes'));
 
+// === Custom Views (Stylist Views) — mount BEFORE 404 ===
+app.use('/api/custom-views', require('./routes/customViews'));
+
+// 404 fallback for unmatched API routes
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 });

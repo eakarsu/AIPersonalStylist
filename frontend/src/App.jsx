@@ -30,6 +30,7 @@ import GapNoNotificationsLayerGrep0Page from './pages/GapNoNotificationsLayerGre
 import GapNoAuditLoggingGrep0Page from './pages/GapNoAuditLoggingGrep0Page';
 import GapNoWebhooksPage from './pages/GapNoWebhooksPage';
 import GapOnly9FrontendPagesDespite20RoutesPage from './pages/GapOnly9FrontendPagesDespite20RoutesPage';
+import CustomViewsPage from './pages/CustomViewsPage';
 function App() {
   const { user, loading } = useAuth();
 
@@ -65,7 +66,7 @@ function App() {
           <Route path="/cost-per-wear" element={<CostPerWearPage />} />
           <Route path="/wardrobe-photo" element={<WardrobePhotoPage />} />
           <Route path="/ai-recommendations" element={<AIRecommendationsPage />} />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/custom-views" element={<CustomViewsPage />} />
         
           {/* // === Batch 06 Gaps & Frontend Mounts === */}
           <Route path="/cf-photo-based-outfit-generation" element={<CFPhotoBasedOutfitGenerationPage />} />
@@ -85,6 +86,7 @@ function App() {
           <Route path="/gap-no-audit-logging-grep-0" element={<GapNoAuditLoggingGrep0Page />} />
           <Route path="/gap-no-webhooks" element={<GapNoWebhooksPage />} />
           <Route path="/gap-only-9-frontend-pages-despite-20-routes" element={<GapOnly9FrontendPagesDespite20RoutesPage />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
     </div>
