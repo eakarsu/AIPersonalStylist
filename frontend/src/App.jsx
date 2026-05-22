@@ -31,6 +31,11 @@ import GapNoAuditLoggingGrep0Page from './pages/GapNoAuditLoggingGrep0Page';
 import GapNoWebhooksPage from './pages/GapNoWebhooksPage';
 import GapOnly9FrontendPagesDespite20RoutesPage from './pages/GapOnly9FrontendPagesDespite20RoutesPage';
 import CustomViewsPage from './pages/CustomViewsPage';
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
 function App() {
   const { user, loading } = useAuth();
 
@@ -52,6 +57,10 @@ function App() {
       <Navbar />
       <main className="main-content">
         <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
           <Route path="/" element={<Dashboard />} />
           {FEATURES.map((f) => (
             <Route
