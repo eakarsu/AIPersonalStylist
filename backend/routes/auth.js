@@ -1,19 +1,20 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const pool = require('../db');
 const router = express.Router();
+const { jwtSecret } = require('../config/security');
+const JWT_SECRET = jwtSecret();
 
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, email, name',
+      "INSERT INTO users (email, password, name, role) VALUES ($1, $2, $3, 'owner') RETURNING id, email, name, role",
       [email, hashedPassword, name]
     );
-    const token = jwt.sign({ userId: result.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: result.rows[0].id, id: result.rows[0].id, role: result.rows[0].role }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user: result.rows[0], token });
   } catch (err) {
     if (err.code === '23505') {
@@ -35,7 +36,7 @@ router.post('/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, id: user.id, role: user.role || 'owner' }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user: { id: user.id, email: user.email, name: user.name }, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -46,7 +47,7 @@ router.get('/me', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'No token' });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const result = await pool.query('SELECT id, email, name FROM users WHERE id = $1', [decoded.userId]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
     res.json({ user: result.rows[0] });
@@ -57,33 +58,7 @@ router.get('/me', async (req, res) => {
 
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-
-    const result = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    // Always return same message to prevent email enumeration
-    if (result.rows.length === 0) {
-      return res.json({ message: 'If that email exists, a reset link has been sent.' });
-    }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-
-    await pool.query(
-      'UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3',
-      [token, expiry, result.rows[0].id]
-    );
-
-    // In production, send email. Here we return the token for demo purposes.
-    res.json({
-      message: 'If that email exists, a reset link has been sent.',
-      // Only included for dev/demo — remove in production:
-      reset_token: token,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  res.status(503).json({ error: 'Password reset delivery is unavailable until an approved provider is configured' });
 });
 
 // POST /api/auth/reset-password

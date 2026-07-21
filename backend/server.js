@@ -25,6 +25,7 @@ const fashionFeedRoutes = require('./routes/fashionFeed');
 const aiRoutes = require('./routes/ai');
 const aiAdvancedRoutes = require('./routes/aiAdvanced');
 const wardrobeUploadRoutes = require('./routes/wardrobeUpload');
+const auth = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3001;
@@ -57,6 +58,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/ai-advanced', aiAdvancedRoutes);
 app.use('/api/wardrobe', wardrobeUploadRoutes);
 app.use('/api/wardrobe-items', wardrobeUploadRoutes);
+app.use('/api/stylist-workflows', auth, require('./routes/stylistWorkflow'));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -67,6 +69,7 @@ app.get('/api/health', (req, res) => {
 
 
 // === Custom Feature Mounts (batch_06) ===
+app.use(/^\/api\/(?:cf-|gap-)/, auth, (req, res) => res.status(503).json({ error: 'Generated feature route is quarantined pending validated implementation' }));
 app.use('/api/cf-photo-based-outfit-generation', require('./routes/customFeat01_PhotoBasedOutfitGeneration'));
 app.use('/api/cf-shopping-advisor', require('./routes/customFeat02_ShoppingAdvisor'));
 app.use('/api/cf-sustainability-tracking', require('./routes/customFeat03_SustainabilityTracking'));
