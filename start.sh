@@ -54,7 +54,7 @@ trap cleanup EXIT INT TERM
 
 (cd backend && npm run dev) &
 BACKEND_PID=$!
-(cd frontend && npm run dev) &
+(cd frontend && npm run dev -- --host 127.0.0.1 --port "$FRONTEND_PORT" --strictPort) &
 FRONTEND_PID=$!
 
 while kill -0 "$BACKEND_PID" 2>/dev/null && kill -0 "$FRONTEND_PID" 2>/dev/null; do
