@@ -1,6 +1,12 @@
 const pool = require('./db');
 const bcrypt = require('bcryptjs');
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_PASSWORD || process.env.SEED_DEMO_PASSWORD || process.env.DEMO_SEED_PASSWORD || '';
+  if (password.length < 12 || password.length > 1024) throw new Error('DEMO_PASSWORD must contain 12-1024 characters');
+  return password;
+}
+
 async function seed() {
   console.log('Starting database seed...');
 
@@ -258,13 +264,13 @@ async function seed() {
   console.log('Tables created successfully');
 
   // Create demo user
-  const hashedPassword = await bcrypt.hash('demo123', 10);
+  const hashedPassword = await bcrypt.hash(requireDemoPassword(), 10);
   const userResult = await pool.query(
     'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id',
     ['demo@stylist.com', hashedPassword, 'Demo User']
   );
   const userId = userResult.rows[0].id;
-  console.log('Demo user created (demo@stylist.com / demo123)');
+  console.log('Demo login users provisioned from the local environment.');
 
   // Seed Wardrobe Items (15+)
   const wardrobeItems = [
@@ -659,7 +665,7 @@ async function seed() {
 
   console.log('\n✅ Database seeded successfully!');
   console.log('📧 Login: demo@stylist.com');
-  console.log('🔑 Password: demo123');
+  console.log('Demo login users provisioned from the local environment.');
 
   await pool.end();
   process.exit(0);

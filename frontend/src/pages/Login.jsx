@@ -28,8 +28,8 @@ export default function Login() {
   };
 
   const fillDemo = () => {
-    setEmail('demo@stylist.com');
-    setPassword('demo123');
+    setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
+    setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
     setIsRegister(false);
   };
 
