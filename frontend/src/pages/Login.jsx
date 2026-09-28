@@ -116,9 +116,9 @@ export default function Login() {
             {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
 
-          <button type="button" className="btn btn-demo btn-full" onClick={fillDemo}>
+          <button type="button" className="btn btn-demo btn-full" onClick={fillDemo} aria-label="Auto Fill Demo Credentials">
             <span className="material-icons-outlined">flash_on</span>
-            Quick Demo Login
+            Auto Fill Demo Credentials
           </button>
 
           <p className="login-toggle">
