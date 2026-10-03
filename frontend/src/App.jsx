@@ -4,7 +4,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import { FEATURES } from './config/features';
 import OutfitGeneratorPage from './pages/OutfitGeneratorPage';
 import SeasonalAnalysisPage from './pages/SeasonalAnalysisPage';
@@ -54,8 +53,8 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <Sidebar user={user} onLogout={handleLogout} />
+    <div className="app">
+      <Navbar />
       <main className="main-content">
         <Routes>
         <Route path="/insights/timeline" element={<TimelineView />} />
