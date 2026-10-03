@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import Navbar from './components/Navbar';
+import AppSidebar from './components/AppSidebar';
 import { FEATURES } from './config/features';
 import OutfitGeneratorPage from './pages/OutfitGeneratorPage';
 import SeasonalAnalysisPage from './pages/SeasonalAnalysisPage';
@@ -53,9 +54,10 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <Navbar />
-      <main className="main-content">
+    <div className="app codex-nav-shell">
+        <AppSidebar />
+        <Navbar />
+        <main className="main-content">
         <Routes>
         <Route path="/insights/timeline" element={<TimelineView />} />
         <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
