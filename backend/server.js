@@ -69,6 +69,14 @@ app.get('/api/health', (req, res) => {
 
 
 // === Custom Feature Mounts (batch_06) ===
+
+// Advisory AI reports only; native execution and approval routes stay unchanged.
+const aiWorkspaceSupport = require("./aiWorkspaceAdapters.cjs");
+const aiWorkspaceDatabase = require("./db.js");
+app.use('/api/report-workspace', require("./aiWorkspace.cjs").createAIWorkspaceRouter({
+  pool: aiWorkspaceDatabase, authenticateToken: require("./middleware/auth.js"),
+  aiRateLimiter: aiWorkspaceSupport.createWorkspaceLimiter(), features: require("./aiWorkspaceFeatures.json"),
+}));
 app.use(/^\/api\/(?:cf-|gap-)/, auth, (req, res) => res.status(503).json({ error: 'Generated feature route is quarantined pending validated implementation' }));
 app.use('/api/cf-photo-based-outfit-generation', require('./routes/customFeat01_PhotoBasedOutfitGeneration'));
 app.use('/api/cf-shopping-advisor', require('./routes/customFeat02_ShoppingAdvisor'));

@@ -1,3 +1,4 @@
+import AIReportLibrary from "./components/AIReportLibrary";
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
@@ -54,7 +55,7 @@ function App() {
   }
 
   return (
-    <div className="app codex-nav-shell">
+    <><AIReportLibrary floating /><div className="app codex-nav-shell">
         <AppSidebar />
         <Navbar />
         <main className="main-content">
@@ -100,7 +101,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
-    </div>
+    </div></>
   );
 }
 

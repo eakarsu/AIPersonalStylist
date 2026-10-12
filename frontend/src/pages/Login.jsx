@@ -27,10 +27,21 @@ export default function Login() {
     }
   };
 
-  const fillDemo = () => {
-    setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
-    setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
+  const handleDemoLogin = async () => {
+    const demoEmail = import.meta.env.VITE_DEMO_EMAIL;
+    const demoPassword = import.meta.env.VITE_DEMO_PASSWORD;
     setIsRegister(false);
+    setEmail(demoEmail || '');
+    setPassword(demoPassword || '');
+    setError('');
+    if (!demoEmail || !demoPassword) {
+      setError('Demo credentials are not configured for this environment.');
+      return;
+    }
+    setLoading(true);
+    try { await login(demoEmail, demoPassword); }
+    catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -116,9 +127,9 @@ export default function Login() {
             {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
 
-          <button type="button" className="btn btn-demo btn-full" onClick={fillDemo} aria-label="Auto Fill Demo Credentials">
+          <button type="button" className="btn btn-demo btn-full" onClick={handleDemoLogin} disabled={loading} aria-label="Log In as Demo">
             <span className="material-icons-outlined">flash_on</span>
-            Auto Fill Demo Credentials
+            Log In as Demo
           </button>
 
           <p className="login-toggle">
