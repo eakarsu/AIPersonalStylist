@@ -102,6 +102,7 @@ app.use('/api/gap-only-9-frontend-pages-despite-20-routes', require('./routes/ga
 // === Custom Views (Stylist Views) — mount BEFORE 404 ===
 app.use('/api/custom-views', require('./routes/customViews'));
 
+app.use('/api/feature-pack', auth, require('./routes/featurePack41b'));
 // 404 fallback for unmatched API routes
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 

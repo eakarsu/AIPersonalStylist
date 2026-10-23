@@ -264,7 +264,7 @@ export default function FeaturePage({ config }) {
       {/* Detail Panel */}
       {selectedItem && (
         <div className="detail-overlay" onClick={() => setSelectedItem(null)}>
-          <div className="detail-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="detail-panel" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="detail-header">
               <h2>Item Details</h2>
               <button className="btn-close" onClick={() => setSelectedItem(null)}>
@@ -318,6 +318,9 @@ export default function FeaturePage({ config }) {
                 <span className="material-icons-outlined">delete</span>
                 Delete
               </button>
+              <button className="btn btn-ghost" onClick={() => setSelectedItem(null)}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -326,7 +329,7 @@ export default function FeaturePage({ config }) {
       {/* Form Modal */}
       {showForm && (
         <div className="detail-overlay" onClick={() => setShowForm(false)}>
-          <div className="form-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="form-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="detail-header">
               <h2>{editItem ? 'Edit Item' : 'New Item'}</h2>
               <button className="btn-close" onClick={() => setShowForm(false)}>
